@@ -2,30 +2,15 @@ apiVersion: "v1"
 kind: "Pod"
 metadata:
   labels:
-    jenkins: "slave"
+    jenkins: "agent"
     job: "package"
     #Following label is required by the NetworkPolicy managed by stable/jenkins helm chart and configured from jenkins-infra/charts
     jenkins/default-release-jenkins-agent: true
 spec:
   containers:
-  - image: "jenkins/inbound-agent:4.3-9-windowsservercore-1809"
-    imagePullPolicy: "Always"
-    name: "jnlp"
-    resources:
-      limits:
-        memory: "4Gi"
-        cpu: "1"
-      requests:
-        memory: "4Gi"
-        cpu: "1"
-  - args:
-      - -Command
-      - Start-Sleep -s 2147483 # We must be sure that the process used by the container doesn't stop before the Jenkins job and second is not greater than 2147483
-    command:
-      - "powershell.exe"
-    image: "mcr.microsoft.com/dotnet/framework/sdk:3.5"
-    imagePullPolicy: "Always"
-    name: "dotnet"
+  - name: "jnlp"
+    image: dduportal/jenkinsciinfra-packaging:2.1.0-windowsservercore-ltsc2019
+    imagePullPolicy: "IfNotPresent"
     resources:
       limits:
         memory: "4Gi"
@@ -35,7 +20,6 @@ spec:
         cpu: "1"
     securityContext:
       privileged: false
-    tty: false
   affinity:
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
